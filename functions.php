@@ -10,12 +10,13 @@ error_reporting(0);
 include_once './config.php';
 if ($argc != 2)
 {
-    echo 'USAGE : '.PHP_EOL.'$ php functions.php [user@email.com]';
+    echo 'USAGE : '.PHP_EOL.'$ php functions.php [user@email.com]'.PHP_EOL;
     exit;
 }
 $usermail = $argv[1];
 
 searchLoop();
+
 //sendmail('lol');
 
 function sendmail($tabcontent) {
@@ -23,7 +24,7 @@ function sendmail($tabcontent) {
     $subject = 'Torrent Crawler : New link found ! '.$tabcontent[0];
     $body = '';
     foreach ($tabcontent as $content) {
-        $body .= $content.PHP_EOL; 
+        $body .= $content.PHP_EOL.PHP_EOL; 
     }
     echo 'DEST : '.$to.PHP_EOL;
     echo 'SUBJECT '.$subject.PHP_EOL;

@@ -43,10 +43,10 @@ include_once './config.php';
     <?php endif ; ?>
 
         <?php 
-            if($_GET['action'] == "add") {
+            if(isset($_GET['action']) && $_GET['action'] == "add") {
                 addnewsurvey();
             }
-            if ($_GET['action'] == "delete" && isset($_GET['id'])) {
+            if (isset($_GET['action']) && $_GET['action'] == "delete" && isset($_GET['id'])) {
                 deletesurvey($_GET['id']);
             }
         ?>
