@@ -8,8 +8,12 @@
 ini_set('display_errors', 0);
 error_reporting(0);
 include_once './config.php';
-include_once 'phpmailer/class.phpmailer.php';
-$usermail = $argv[0];
+if ($argc != 2)
+{
+    echo 'USAGE : '.PHP_EOL.'$ php functions.php [user@email.com]';
+    exit;
+}
+$usermail = $argv[1];
 
 searchLoop();
 //sendmail('lol');
@@ -17,10 +21,14 @@ searchLoop();
 function sendmail($tabcontent) {
     $to = $GLOBALS['usermail'];
     $subject = 'Torrent Crawler : New link found ! '.$tabcontent[0];
+    $body = '';
     foreach ($tabcontent as $content) {
-        echo " LINKS : ".$content;
+        $body .= $content.PHP_EOL; 
     }
-    //mail($to, $subject, $tabcontent);
+    echo 'DEST : '.$to.PHP_EOL;
+    echo 'SUBJECT '.$subject.PHP_EOL;
+    echo 'MAIL TO BE SEND : '.$body;
+    return mail($to, $subject, $body);
 }
 
 function searchLoop() {
@@ -33,8 +41,8 @@ function searchLoop() {
                 $configs[$i] = markresolved($configs[$i]);
             }
             ++$i;
+            refreshsurvey($configs);
         }
-        refreshsurvey($configs);
     }
 }
 
@@ -58,21 +66,22 @@ function searchPirateBay($search) {
 
     $dom = new DOMDocument();
     $dom->loadHTML($return);
-    
+    echo "fuck";
     
     $resultQuery = '//table[@id="searchResult"]/tr/td//div[@class="detName"]';
     $xpath = new DOMXPath($dom);
     $searchResult = $xpath->query($resultQuery);
-    $mailcontent = null;
+    $mailcontent = array();
     $found = false;
     $i = 0;
         foreach ($searchResult as $name) {
                 $nameStr = $name->nodeValue;
-                if (!empty($nameStr)) {
-                    $found = true;
-                    echo 'RESULT FOUND :)'.PHP_EOL;
-                    array_push($mailcontent, $nameStr); 
+                if (empty($nameStr)) {
+                    echo 'NO RESULT FOUND :('.PHP_EOL;
+                    break;
                 }
+                
+                array_push($mailcontent, $nameStr); 
 
                 $searchLink = $xpath->query('//table[@id="searchResult"]/tr/td//*[contains(., "'.$nameStr.'")]//a/@href');
                 foreach ($searchLink as $link) {
@@ -81,15 +90,18 @@ function searchPirateBay($search) {
                 }
 
                 $searchMagnet = $xpath->query('//table[@id="searchResult"]/tr//*[contains(., "'.$nameStr.'")]//a/@href');
+                $cnt = 0;
                 foreach ($searchMagnet as $magnet) {
                     $magnet = $magnet->nodeValue;
                     echo $magnet.PHP_EOL;
-                    array_push($mailcontent, $magnet);
+                    if (!strncmp($magnet, 'magnet', 6)) {
+                        array_push($mailcontent, $magnet);
+                    }
+                    
+                    echo 'RESULT FOUND :)'.PHP_EOL;
                 }
-                if ($found) {
-                    sendmail($mailcontent);
+                    $found = sendmail($mailcontent);
                     break;
-                }
            }
         return ($found);
     }

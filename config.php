@@ -40,13 +40,13 @@ function getsurveyinfos($line = null) {
 function deletesurvey($id = -1) {
     if ($id == -1 || $id < 0) {
         echo 'Oups error deleting survey...';
+        return ;
     }
     $configs = getconfigs();
     $configsnb = getconfigsnb();
     $newconfigs = array();
     for ( $i = 0; $i < $configsnb; ++$i ) {
         if ($i != $id) {
-            echo 'DELETING : '.$configs[$i];
             $newconfigs[$i] = $configs[$i];
         }
     }
